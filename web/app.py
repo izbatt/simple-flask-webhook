@@ -27,7 +27,12 @@ def parseRequest(req):
     result = req.get("result")
     parameters = result.get("parameters")
     name = parameters.get("topic")
-    speech = "You said you wanted to know about " +name+ ", correct?"
+    if name == "Landing":
+        speech = "The next landing is on: "
+    elif name == "Launch":
+        speech = "The next launch is on: "
+    else:
+        speech = "I didn't understand what you said, I can tell you about launches or landings, which one do you want to know about?"
     print("Response: ")
     print(speech)
     return {
@@ -35,9 +40,10 @@ def parseRequest(req):
         "displayText": speech,
         "source": "NASA-LandL"
     }
+    #setup ngrok video @ 22:40
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
+    port = int(os.getenv('PORT', 80))
     print("Starting app on port %d" %(port))
     app.run(debug=True, port=port, host='0.0.0.0')
 
