@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Flask Dockerized'
+    return 'visit /api for webhook'
 
 @app.route('/api', methods=['POST'])
 def webhook():
