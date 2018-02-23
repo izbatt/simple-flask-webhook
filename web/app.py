@@ -146,17 +146,20 @@ def getNextMission(context, action):
         if len(missions[0])>=1:
             mission = missions[0].pop(0) #pops first landing into mission
         else:#no more missions in array
-            print("no more landings") ###############################################################need to handle no more missions
+            mission = "no more missions"
+            missions = "There are currently no more landing missions. Would you like to hear about launches, other missions, or quit?"
     elif action == "getLaunch":
         if len(missions[1])>=1:
             mission = missions[1].pop(0) #pops first launch into mission
         else:#no more missions in array
-            print("no more launches") ###############################################################
+            mission = "no more missions"
+            missions = "There are currently no more launch missions. Would you like to hear about landings, other missions, or quit?"
     elif action == "getOther":
         if len(missions[2])>=1:
             mission = missions[2].pop(0) #pops first other into mission
         else:#no more missions in array
-            print("no more others") #################################################################
+            mission = "no more missions"
+            missions = "There are currently no more other missions. Would you like to hear about landings, launches, or quit?"
     return mission, missions
 
 
@@ -164,10 +167,14 @@ def getNextMission(context, action):
 def parseRequest(req):
     #set json to easy to read variables.
     RESULT = req.get("result")
+    TOKEN = req.get("originalRequest").get("data").get("conversation").get("conversationToken")
+    print(TOKEN)
+    print(len(TOKEN))
     ACTION = RESULT.get("action")
     CONTEXTS = RESULT.get("contexts")
+    #print(json.dumps(req, indent=4))
     #return the next landing or launch
-    if len(CONTEXTS)==1 and (ACTION == "getLanding" or ACTION == "getLaunch" or ACTION == "getOther"):
+    if len(TOKEN)==2 and (ACTION == "getLanding" or ACTION == "getLaunch" or ACTION == "getOther"):
         missions = grabMissions()
         if ACTION == "getLanding":
             mission = missions[0].pop(0) #pops first landing into mission
@@ -181,9 +188,16 @@ def parseRequest(req):
             mission = missions[2].pop(0) #pops first other into mission
             #print(mission)
             return outputMission(mission, missions) #returns first mission and updates "missions" context 
-    elif len(CONTEXTS)>1 and (ACTION == "getLanding" or ACTION == "getLaunch" or ACTION == "getOther"):
+    elif len(TOKEN)>2 and (ACTION == "getLanding" or ACTION == "getLaunch" or ACTION == "getOther"):
         mission, missions = getNextMission(CONTEXTS, ACTION)
-        return outputMission(mission, missions)
+        if mission == "no more missions":
+            return {
+                "speech": missions,
+                "displayText": missions,
+                "source": "NASAv2", 
+            }
+        else:
+            return outputMission(mission, missions)
      
 
     if ACTION == "DescriptionNext":
@@ -206,11 +220,16 @@ def parseRequest(req):
                 mission, missions = getNextMission(CONTEXTS, "getLanding")
             elif TYPE == "launch":
                 mission, missions = getNextMission(CONTEXTS, "getLaunch")
-            elif TYPE == "other": 
+            elif TYPE == "other":
                 mission, missions = getNextMission(CONTEXTS, "getOther")
-            else: #*****************************************************************************************HANDLE ERROR
-                pass
-            return outputMission(mission, missions)
+            if mission == "no more missions":
+                return {
+                    "speech": missions,
+                    "displayText": missions,
+                    "source": "NASAv2", 
+                }
+            else:
+                return outputMission(mission, missions)
         elif PARAM == "description" or PARAM == "more":
             #if it's description we need to read the description. 
             speech = "The description for "+TITLE+" is as follows: " + DESCRIPTION + " Would you like to hear the next launch or landing?"
