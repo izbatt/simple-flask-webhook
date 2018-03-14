@@ -26,7 +26,7 @@ def webhook():
 def grabMissions():
     today = datetime.now()
     stoday = today.strftime("%Y-%m-%d")
-    NASA_URL = "https://www.nasa.gov/api/2/calendar-event/_search?size=100&from=0&sort=event-date.value&q=(((calendar-name%3A6089)%20AND%20(event-date.value%3A%5B"+stoday+"T10%3A55%3A31-05%3A00%20TO%202028-02-08T10%3A55%3A31-05%3A00%5D%20OR%20event-date.value2%3A%5B"+stoday+"T10%3A55%3A31-05%3A00%20TO%202028-02-08T10%3A55%3A31-05%3A00%5D)%20AND%20event-date-count%3A1))"
+    NASA_URL = 
     with urllib.request.urlopen(NASA_URL) as url:
         events = json.loads(url.read().decode())
     allEvents = parseEvents(events)
